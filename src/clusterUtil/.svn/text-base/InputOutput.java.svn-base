@@ -1,0 +1,35 @@
+package clusterUtil;
+
+import java.io.*;
+import java.util.*;
+import java.text.*;
+import java.lang.*;
+import java.math.*;
+public final class InputOutput {
+	
+	public static double[][] reads(String name){
+		double[][] ds=null;
+		 try {
+		        BufferedReader in = new BufferedReader(new FileReader(name));
+		        Integer row=0;
+		        Integer col;
+		        String[] rowCol;
+		        String str;
+		        str = in.readLine();
+		        rowCol=str.split(",");
+		        col=Integer.decode(rowCol[0]);
+		        row=Integer.decode(rowCol[1]);
+		        ds=new double[row][col];
+		        row=0;
+		        while ((str = in.readLine()) != null) {
+			        rowCol=str.split(",");
+			        for(int i=0;i<col;i++)
+			        	ds[row][i]=Double.parseDouble((rowCol[i]));
+			        row++;
+		        }
+		        in.close();
+		    } catch (IOException e) {
+		    }
+		return ds;
+	}
+}

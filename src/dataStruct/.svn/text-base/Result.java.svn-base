@@ -1,0 +1,55 @@
+package dataStruct;
+
+public class Result {
+	//asignacion a cada cluster de cada instancia
+	public int[] cluPert;	
+
+	//cantidad de clusters??
+	public int cluNum;
+	public int nItems;
+	public int nFields;
+	
+	//centroides de clusters [nroClu][valField]
+	public double[][] clusterCentroids;
+	//within cluster sum of square errors;	
+	//public double inCluSumSqError;
+
+	void ResultSet()
+	{
+		this.cluNum=0;
+		this.nFields=0;
+		this.nItems=0;
+		cluPert = null;
+		clusterCentroids=null;
+	}
+	
+	void ResultSet(int cluNum,int nFields,int nItems)
+	{
+		this.cluNum=cluNum;
+		this.nFields=nFields;
+		this.nItems=nItems;
+		cluPert = new int [nItems];
+		clusterCentroids=new double [cluNum][nFields];
+	}
+
+
+	public void showData(){
+		System.out.println("#individuals:"+cluPert.length);
+		System.out.println("#fields:"+clusterCentroids[0].length);
+		System.out.println("------Assigns------------");
+		System.out.print("|");
+		for(int i=0;i<cluPert.length;i++){
+			System.out.print(cluPert[i]);
+			System.out.print("|");
+		}
+		System.out.println(" ");
+		System.out.println("------Centroids------------");
+		for(int i=0;i<clusterCentroids.length;i++){
+			System.out.print("|");
+			for(int j=0;j<clusterCentroids[0].length;j++)
+				System.out.print(clusterCentroids[i][j]+"|");
+			System.out.println(" ");
+		}
+	}
+
+}

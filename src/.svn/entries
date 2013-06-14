@@ -1,0 +1,43 @@
+9
+
+dir
+85
+https://devel.palermo.edu/usvn/svn/WIB/trunk/fuzzyToolkit6.0/src
+https://devel.palermo.edu/usvn/svn/WIB
+
+
+
+2008-09-18T01:49:57.352712Z
+84
+dll
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+dd75ee7b-60e8-4682-8f33-dc53d12f6a73
+
+clusterUtil
+dir
+
+cluster
+dir
+
+mains
+dir
+
+distance
+dir
+
+dataStruct
+dir
+

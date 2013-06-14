@@ -1,0 +1,76 @@
+package cluster;
+
+import dataStruct.*;
+import distance.*;
+
+public abstract class HardC extends Cluster{
+	
+	public double interCluD=0;
+	public double intraCluD=0;
+	
+	public HardC(int numClu,DoubleDataset ds){
+		super(numClu,ds);
+	}
+	public Result resulta(int[] cluAssign,double[][] centroids,double[] cluperc){
+		ResultH r=new ResultH();
+		r.cluPert=cluAssign;
+		r.clusterCentroids=centroids;
+		r.cluNum=centroids.length;		
+		r.cluPerc=cluperc;	
+		r.interCluD=this.interCluD;
+		r.intraCluD=this.intraCluD;
+		return r;
+	}
+
+	public double intraCluDist(int[] cluAssign,double[][] centroids)
+	{
+		double tot=0;
+		int numC=centroids.length;
+		for (int i=0;i<numC;i++){
+			double tot1clu=0;
+			double[] centr=centroids[i];
+			for(int j=0;j<ds.dataset.length;j++)
+				if (cluAssign[j]==i)
+					tot1clu+=getDistKind().calcular(centr,ds.dataset[i]);
+			tot+=tot1clu;
+		}
+		return tot;
+	}
+
+	public double interCluDist(double[][] centroids)
+	{
+		double tot=0;
+		int numC=centroids.length;
+		for (int i=0;i<numC-1;i++){
+			for(int j=i+1;j<numC;j++)
+				tot+= getDistKind().calcular(centroids[i],centroids[j]);
+		}
+		return tot;
+	}
+	
+	//asigno cada item al cluster mas cercano
+	public int[] assItemAClu(double[][] cent){
+		double[] item;
+		int[] ass=new int[nItems];
+		for(int j=0;j<nFields;j++)
+			ass[j]=-1;
+    	for(int i=0;i<nItems;i++){
+	       	item=ds.dataset[i];
+			int idc=0;
+			double dis=100000000;
+			double[] cluc=new double[cent.length];
+				for(int k=0;k<cent.length;k++){
+					cluc=centroids[k];
+					double dist=getDistKind().calcular(cluc, item);
+				if (dist<dis){
+					dis=dist;
+					idc=k;
+					}
+				}
+	    		ass[i]=idc;	
+
+    	}
+    	return ass;
+  }
+
+}

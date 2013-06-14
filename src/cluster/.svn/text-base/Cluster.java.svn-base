@@ -1,0 +1,85 @@
+package cluster;
+
+import distance.*;
+import dataStruct.*;
+import distance.*;
+	
+public abstract class Cluster{// implements Clusterer{
+
+	public Distance dotDistType;
+	
+	public DoubleDataset ds;
+	public Result rs;
+	public int nFields;
+	public int nItems;
+	public int[] cluAssign;
+	public double[] cluPerc;//Porcentaje de instancias que tiene cada cluster
+	public double[][] centroids;
+	public int numClu;
+	public int maxIter=500; //catidad maxima de iteracioes del algoritmo
+
+	public Cluster(){
+		
+	}
+	public Result ProcessClusters(){
+		Result r =null;
+		return r;
+	}
+	public Cluster(int numClu,DoubleDataset ds){
+		this.ds=ds;
+		this.nFields=ds.dataset[0].length;
+		this.numClu=numClu;
+		this.nItems=ds.dataset.length;
+		cluAssign=new int[nItems];
+		centroids=new double[numClu][nFields];
+		cluPerc=new double[numClu];
+	}
+//	ResultSet getClusters(Cluster clustering, DoubleDataset misDatos);
+
+	public void initCentroidsRand(){
+		
+		//Obtengo el vector instanc con los individuos al random elejidos como centroides
+		int[] instanc=new int[numClu];
+		for(int i=0;i<numClu;i++)
+			instanc[i]=-1;
+		int cantInd=nItems;
+		for(int i=0;i<numClu;)
+		{
+			double rnd=Math.random()*(cantInd-1);
+			int sel=(int)rnd;
+			//chequeo si select ya esta en instanc
+			boolean esta=false;
+			for(int j=0;j<numClu;j++)
+				if (instanc[j]==sel) esta=true;
+			if (!esta){
+				instanc[i]=sel;
+				i++;
+			}
+		}
+		//asigno a los centroides los valores de los k iniciales valores de los individuos
+		for(int i=0;i<numClu;i++){
+			int subi=instanc[i];
+				for(int j=0;j<nFields;j++){
+					centroids[i][j]=ds.dataset[subi][j];
+				}			
+		}
+	}
+
+	public void calcCluPert(){
+		for(int i=0;i<numClu;i++)
+			cluPerc[i]=0;
+		for(int i=0;i<nItems;i++)
+			cluPerc[cluAssign[i]]+=1;
+		for(int i=0;i<numClu;i++)
+			cluPerc[i]=cluPerc[i]*100/(nItems);
+	}
+
+	public void setDistance(Distance distTrat){
+		this.dotDistType= distTrat;
+	}
+	public Distance getDistKind() {
+		return this.dotDistType;
+	}
+
+}
+

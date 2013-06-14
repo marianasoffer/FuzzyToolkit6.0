@@ -1,0 +1,39 @@
+package dataStruct;
+
+public class ResultF extends Result{
+	
+	//grado de pertenencia para fuzzy
+	public double[][] u;
+	public double xieIndex;
+	
+	public ResultF()
+	{
+		super();
+		this.u=null;
+	}
+
+	ResultF(int cluNum,int nFields,int nItems)
+	{
+		super();
+		u= new double[nItems][cluNum];
+	}
+
+
+	public void showData(){
+		super.showData();
+		System.out.println("------Grado de Pertenencia U------------");
+		for(int i=0;i<u.length;i++){
+			System.out.print("|");
+			for(int j=0;j<cluNum;j++){
+				System.out.print(u[i][j]);
+				System.out.print("|");
+			}
+			System.out.println(" ");
+		}
+		System.out.println("------evaluate clustering results------------");
+		System.out.println("xieIndex:"+xieIndex);
+
+	}
+
+}
+

@@ -1,0 +1,232 @@
+//deprecated
+package clusterUtil;
+
+
+import java.lang.Math;
+import distance.*;
+
+public final class ClusterMath {
+
+	
+	//intra cluster cluster distance in a vector[i], i=cluster number 
+	public static double[] cluDist(double[][] centroids,double[][] instances, int[] cluAssign,Distance dist) {
+		int nClu=centroids.length;
+		int nInst=instances.length;
+		double[] ICluDists=new double[nClu];
+		
+		for(int i=0;i<nClu;i++)
+			ICluDists[i]=0;
+		
+		for(int i=0;i<nClu;i++)
+			for(int j=0;j<nInst;j++)
+				if(cluAssign[j]==i)
+					ICluDists[i]+=dist.calcular(centroids[i],instances[j]);
+		return ICluDists;
+	}
+
+	public static double addVect(double[] v){
+		double res=0;
+		for(int i=0;i<v.length;i++)
+			res+=v[i];
+		return res;
+	}
+	
+	//es Centroide
+	public static boolean isCentroid(double[][] centroids,double[] instance) {
+		int nClu=centroids.length;
+		boolean resu=false;
+		for(int i=0;i<nClu;i++){
+			boolean is=true;
+			for(int j=0;j<instance.length;j++)
+			   if (instance[j]!=centroids[i][j])
+				   is=false;
+			if(is)
+				resu=true;
+		}	
+    return resu;
+	}
+
+	public static double[][] normalizeDataset(double[][] ds){
+	  double[] totals=new double[ds[0].length];
+	    for (int i = 0; i < totals.length; i++) 
+	        totals[i]=0;
+	    for (int i = 0; i < ds.length; i++) 
+		    for (int j = 0; j < ds[0].length; j++) 
+		    	totals[j]+=ds[i][j];
+	    for (int i = 0; i < ds.length; i++) 
+		    for (int j = 0; j < ds[0].length; j++) 
+		    	ds[i][j]=ds[i][j]/totals[j];
+  	return ds;
+  }
+	
+   public static double determinant(double[][] m){
+	  double v=0;
+	  if (m.length==1)
+		  return m[0][0];
+	  
+      for (int i = 0; i < m.length; i++) {
+              int sign = ((i % 2) == 0) ? 1 : -1;
+              v += sign * m[0][i] * determinant(beta(0, i,m));
+      }              
+	  return v;
+  }
+   //norma del vector (longitud espacial)
+	public static double norma(double[] v1){
+		double acum=0;
+		for (int i=0;i<v1.length;i++)
+			acum+=Math.pow(v1[i],2);
+		return Math.sqrt(acum);
+	}
+
+	public static double[] normalize(double[] doubles) {
+	    double sum = 0;
+	    for (int i = 0; i < doubles.length; i++) {
+	      sum += doubles[i];
+	    }
+	    for (int i = 0; i < doubles.length; i++) 
+	        doubles[i]=doubles[i]/sum;
+	    return doubles;
+	  }
+	
+	//diferencia entre 2 vectores (da vector de vi-v1i
+	public static double[] diferencia(double[]v1, double[] v2){
+		if (v1.length!=v2.length)
+			throw new RuntimeException("vectores de dataset y centroide de distinta cantidad de elementos");
+		double[] d=new double[v1.length];
+		for (int i=0;i<v1.length;i++)
+			d[i]=v1[i]-v2[i];
+		return d;
+	}
+//multiplico el primer vector por la transpuesta del segundo
+//es solo para el caso en que la mat mult devuelve un nro	
+ 	public static double mulTranspVecNum(double[] d1,double[] d2){
+ 		double r=0;
+ 		for(int i=0;i<d1.length;i++)
+ 			r=r+d1[i]*d2[i];
+ 		return r;
+ 	}
+
+ 	//multiplico el primer vector por el segundo (mismo tamanio)
+ 	//y obtengo una matriz
+ 	public static double[][] mulTranspVecMat(double[] d1,double[]d2){
+ 	 		double[][] m=new double[d1.length][d1.length];
+            for(int i=0;i<d1.length;i++)
+                for(int j=0;j<d1.length;j++)
+                	m[i][j]=0;
+            for(int i=0;i<d1.length;i++)
+                for(int j=0;j<d1.length;j++)
+                	for(int k=0;k<d1.length;k++)
+                		m[i][j]+=d1[i]*d2[k];
+            return m; 	
+ 	 	}
+ 	
+ 	
+ 	//invert matrix
+ 	public static double[][] inverseMat(double[][] m){
+ 		int l=m.length;
+ 		double det=determinant(m);
+ 		double[][] tr=new double[l][l];
+
+        for (int i = 0; i < l; i++) {
+            for (int j = 0; j < l; j++) {
+                    int sign = (((i + j) % 2) == 0) ? 1 : -1;
+                    tr[i][j]= sign * determinant(beta(i, j,m)) / det;
+            }
+    }
+
+ 		return tr;
+ 	}
+    // get new matrix without r row and c col
+ 	public static double[][] beta(int r, int c,double[][] m) {
+        int iRow = -1, iCol = -1;
+        int l=m.length;
+ 		double[][] tr=new double[l-1][l-1];
+
+        for (int i = 0; i < l; i++) {
+                if (i == r) continue;
+                if (i > r) {
+                        iRow = i - 1;
+                } else {
+                        iRow = i;
+                }
+                for (int j = 0; j < l; j++) {
+                        if (j == c) continue;
+                        if (j > c) {
+                                iCol = j - 1;
+                        } else {
+                                iCol = j;
+                        }
+                        tr[iRow][iCol]=m[i][j];
+                }
+        }
+        return tr;
+}
+
+  //multiply vect por matrix queda vect
+ 	public static double[] multVecMat(double[] v,double[][] m){
+ 		int l=m.length;
+ 		double[] res=new double[l];
+        for(int i=0;i<l;i++)
+        	res[i]=0;
+        for(int i=0;i<l;i++)
+        	for(int j=0;j<l;j++)
+        		res[i]+=v[i]*m[j][i];
+ 		return res;
+ 	}
+
+public static double[][]  multMat(double[][] m1,double[][] m2) 
+{
+	int r1=m1.length;
+	int r2=m2.length;
+
+	int c1=m1[0].length;
+	int c2=m2[0].length;
+	
+    double[][] m = new double[r1][c2];
+    for (int i = 0; i < r1; i++) {
+            for (int j = 0; j < c2; j++) {
+                    double v = 0;
+                    for (int k = 0; k < c1; k++) {
+                            v += m1[i][k]*m2[k][j];
+                    }
+                    m[i][j]=v;
+            }
+    }
+    return m;
+}
+/*
+Metodos no usados
+
+public static double determinantOld(double[][] m){
+    double res=0;
+    int j1,k1;
+    j1=0;k1=0;
+    if (m.length==2)
+            return m[0][0]*m[1][1]-m[1][0]*m[0][1];
+    else {
+            double[][] ma=new double[m.length-1][m.length-1];
+            for(int i=0;i<m.length;i++){
+                    for(int j=0;j<m.length;j++){
+                            for(int k=0;k<m.length;k++){
+                                    if (j!=0 && k!=i){
+                                            j1=j-1;
+                                            if(k<i)
+                                                    k1=k;
+                                            else
+                                                    k1=k-1;
+                                             ma[j1][k1]=m[j][k];
+                                    }
+                           }
+                    }
+                   double aux=m[0][i]*determinant(ma);
+                   if (i%2==0)
+                           res+=aux;
+                    else
+                          res-=aux;
+                  }
+            return res;
+    }
+}
+*/
+
+ }

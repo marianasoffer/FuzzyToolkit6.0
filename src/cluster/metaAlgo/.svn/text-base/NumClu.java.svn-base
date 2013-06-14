@@ -1,0 +1,30 @@
+package cluster.metaAlgo;
+
+import dataStruct.DoubleDataset;
+import dataStruct.Result;
+import dataStruct.ResultH;
+import distance.*;
+import cluster.*;
+import cluster.implement.hard.*;
+import clusterUtil.ClusterMath.*;
+
+public class NumClu extends MetaLearn{
+
+	public NumClu(int min,int max,DoubleDataset ds){
+		super(min,max,ds);
+	}
+	public	Result metaProcess(){
+		Result r=null;;
+		this.actualClu=0;
+		double intCDist=Double.MIN_VALUE;
+		for(int i=minClu;i<maxClu;i++){
+			cluType.setDistance(new EucDist());
+			ResultH resultado=(ResultH)cluType.ProcessClusters();
+			if (intCDist<resultado.interCluD){
+				intCDist=resultado.interCluD;
+				actualClu=i;
+			}	
+		}
+		return r;
+	}		
+}

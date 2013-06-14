@@ -1,0 +1,61 @@
+package dataStruct;
+
+
+public class DoubleDataset{
+
+	public int nItems; //number of individuals
+	public int nFields; //number of variables
+	public double[][] dataset;
+
+
+	public DoubleDataset(){
+		nFields=0;
+		nItems=0;
+	}
+	public DoubleDataset(double[][] dataset){
+		nItems = dataset.length;
+		nFields = dataset[0].length;
+		this.dataset = new double[nItems][nFields];
+		this.dataset=dataset;
+	}
+
+	public void setData(double[][] dataset){
+		nItems = dataset.length;
+		nFields = dataset[0].length;
+		this.dataset = new double[nItems][nFields];
+		this.dataset=dataset;
+	}
+	
+	public double getData(int i, int j){
+		return dataset[i][j];
+	}
+
+	public String toString(){
+		String s="";
+		for(int i=0;i<nItems;i++){
+			s+="|";	
+			for(int j=0;j<nFields;j++)
+				s+=dataset[i][j]+"|";
+			s+="\n";
+		}
+			return s;
+	}
+	public void showData(){
+		System.out.println("#individuals:"+nItems);
+		System.out.println("#fields:"+nFields);
+		System.out.println("------Dataset------------");
+		System.out.println("------Grado de Pertenencia U------------");
+		for(int i=0;i<dataset.length;i++){
+			System.out.print("|");
+			for(int j=0;j<dataset[0].length;j++){
+				System.out.print(dataset[i][j]);
+				System.out.print("|");
+			}
+			System.out.println(" ");
+		}
+	}
+
+}
+
+
+

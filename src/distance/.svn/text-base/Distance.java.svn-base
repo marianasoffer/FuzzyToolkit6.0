@@ -1,0 +1,9 @@
+package distance;
+
+public interface Distance {
+	double calcular(double[] ins1,double[] ins2);
+}
+interface DotDistance extends Distance {
+}
+
+

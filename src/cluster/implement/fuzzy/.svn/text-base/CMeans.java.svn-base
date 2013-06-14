@@ -1,0 +1,118 @@
+package cluster.implement.fuzzy;
+
+import cluster.FuzzyC;
+import clusterUtil.ClusterMath;
+import dataStruct.DoubleDataset;
+import dataStruct.ResultF;
+
+//Standard fuzzy Cmeans
+public class CMeans extends FuzzyC{
+
+
+	public CMeans(int numClu,DoubleDataset ds,int m){
+		super(numClu,ds);
+		this.m=m;
+	}	
+//pondero segun m el centroide 
+//por la sumatoria pondrada del total de los items
+double sumPert(int j){
+	double acum=0;
+	for (int i=0;i<nItems;i++)
+		acum+=Math.pow(u[i][j],m);
+	return acum;
+}
+
+//obtengo la sumatoria total para calcularel nuevo centroide del cluster j 
+//segun las ponderaciones de los items
+double[] sumIndivPond(int jClu){
+	double[] veAcum=new double[nFields];
+	double[] veAct=new double[nFields];
+
+	for (int i=0;i<nFields;i++)
+		veAcum[i]=0;
+	for (int i=0;i<nItems;i++)
+		for (int j=0;j<nFields;j++){
+			double a = ds.dataset[i][j];
+			double c = u[i][jClu];
+			double b =Math.pow(c,m);
+			veAct[j]=b*a;
+			veAcum[j]+=veAct[j];
+		}
+	return veAcum;
+	}	
+
+double[] calc1Centroide(int j){
+	double[] sum1=sumIndivPond(j);
+	double sum2=sumPert(j);
+	for (int i=0;i<nFields;i++)
+		sum1[i]=sum1[i]/sum2;
+	return sum1;
+}
+
+void calcularCentroides(){
+	for (int j=0;j<numClu;j++)
+		centroids[j]=calc1Centroide(j);
+}
+
+//----------------------------------	
+
+	double evaluarDistancia(int elementoI, int centroideJ, int centroide){
+		double di1;
+		double di2;
+   		di1=ClusterMath.norma(ClusterMath.diferencia(ds.dataset[elementoI], centroids[centroideJ]));
+   		di2=ClusterMath.norma(ClusterMath.diferencia(ds.dataset[elementoI], centroids[centroide]));
+		return di1/di2;
+	}
+	
+
+	double calcularPertenenciaElemento(int elementoI, int centroideJ){
+		double acum=0.0;
+		for (int centroide=0;centroide<numClu;centroide++){
+			double a = evaluarDistancia(elementoI, centroideJ, centroide);
+			double pot=1.0*(2/(m-1));
+			acum+=Math.pow(a,pot);
+		}
+		return acum;
+	}
+
+	void calcularMatrizPertenencia(){
+		for (int i=0;i<nItems;i++){
+			for (int j=0;j<numClu;j++){
+				double pert=calcularPertenenciaElemento(i,j);
+					u[i][j]=1.0/pert;
+			}
+		}
+		//parche para distancia 0
+		for (int i=0;i<nItems;i++){
+			int cant0=0;
+			for (int j=0;j<numClu;j++){
+				if (u[i][j]==0)
+					cant0++;
+			}
+			int subi=-1;
+			if (cant0==numClu-1){
+				for (int j=0;j<numClu;j++){
+					if (u[i][j]!=0)
+						subi=j;
+				}
+			u[i][subi]=1;
+			}
+		}
+	}
+
+	public ResultF processClusters(){
+		int iter=0;
+		initCentroidsRand();
+		while(iter<maxIter){
+			calcularMatrizPertenencia();
+			calcularCentroides();
+			iter++;
+		}
+		cluAssign=assCluCentroids(centroids);
+		assCluU(numClu);
+		xieIndex=getXieIndex();
+		return resulta(cluAssign,centroids,u);			
+	}	
+
+
+}

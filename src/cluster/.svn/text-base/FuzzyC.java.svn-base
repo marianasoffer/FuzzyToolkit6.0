@@ -1,0 +1,116 @@
+package cluster;
+
+import dataStruct.*;
+import clusterUtil.*;
+import distance.*;
+
+public abstract class FuzzyC extends Cluster
+{
+	
+	public double[][] u; //grado de pertenencia de cada instacia a c/cluster
+	public double m; //nivel de fuzzyness
+	public double xieIndex=0;//This index can be interpreted as the
+	//ratio of the total within-group variance and the separation of the 
+	//cluster centers.
+	
+	//inicializo vectores y variables en el constructor
+	public FuzzyC(int numClu,DoubleDataset ds){
+		super(numClu,ds);
+		u=new double[nItems][numClu];
+	}
+
+	//Calculo basado en U a que cluster corresponde el item 
+	//que es el que tiene mayor porcentane de pertenencia)
+	public void assCluU(int numClu){
+		
+		double[] disttmp=new double[numClu];
+		double totDist;
+		
+		for(int i=0;i<nItems;i++){
+			totDist=0;
+			int sureClu=-1;
+			for(int j=0;j<numClu;j++){
+				double tmp;
+				tmp=getDistKind().calcular(ds.dataset[i],centroids[j]);
+				totDist+=tmp;
+				disttmp[j]=tmp;
+				//en el caso que la distancia sea cero pertenece seguro a ese cluster
+				if (tmp==0){
+					sureClu=j;
+				}
+			}
+			if(sureClu==-1){
+				for(int j=0;j<numClu;j++)
+					u[i][j]=disttmp[j]/totDist;
+			}
+			else {
+				//la instancia pertenece al cluster sureclu todo 0 meno ese cluster
+				for(int j=0;j<numClu;j++)
+					u[i][j]=0;
+				u[i][sureClu]=1;
+				
+			}
+		}
+	}
+//	 Calculo basado en dist a centroids a que cluster corresponde el item 
+
+	public int[] assCluCentroids(double[][] cent){
+		double[] item;
+		int[] ass=new int[nItems];
+		for(int j=0;j<nFields;j++)
+			ass[j]=-1;
+    	for(int i=0;i<nItems;i++){
+	       	item=ds.dataset[i].clone();
+			int idc=-1;
+			double dis=100000000;
+			double[] cluc=new double[numClu];
+				for(int k=0;k<numClu;k++){
+					cluc=centroids[k].clone();
+				double dist=getDistKind().calcular(cluc,item);
+				if (dist<dis){
+					dis=dist;
+					idc=k;
+					}
+				}
+	    		ass[i]=idc;	
+    	}
+    	return ass;
+  }
+	
+    public double getXieIndex(){
+    	double sumup=0;
+    	double dm=0;
+    	for(int i=0;i<numClu;i++)
+    		for(int k=0;k<nItems;k++){
+    		double mult=Math.pow(u[k][i],m);
+       		double di=ClusterMath.norma(ClusterMath.diferencia(ds.dataset[k], centroids[i]));
+       		double acum=di*di*mult;
+    		sumup+=acum;	
+    		}
+    	double calcDown=0;
+    	double min=Double.MAX_VALUE;
+    	for(int i=0;i<numClu;i++)
+    		for(int j=0;j<numClu;j++)
+    			if(i!=j){
+    				dm=ClusterMath.norma(ClusterMath.diferencia(centroids[i], centroids[j]));
+    				if (min>dm)
+    					min=dm;
+    			}
+    	calcDown=numClu*min;
+    	return sumup/calcDown;
+    }
+
+	//Crea el objeto donde se guardan los resultados fuzzy 
+	//segun valores de matrices resultantes al finalizar el algoritmo
+	public ResultF resulta(int[] cluAssign,double[][] centroids,double[][] u){
+		ResultF r=new ResultF();
+		r.cluPert=cluAssign;
+		r.clusterCentroids=centroids;
+		r.cluNum=centroids.length;		
+		r.nFields=ds.dataset[0].length;
+		r.nItems=ds.dataset.length;
+		r.u=u;
+		r.xieIndex=xieIndex;
+		return r;
+	}
+}

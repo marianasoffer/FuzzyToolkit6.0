@@ -1,0 +1,32 @@
+package dataStruct;
+
+public class ResultH extends Result{
+	//Within cluster sum of squared errors: 24.287376563159434
+	public double[] cluPerc;
+	public double interCluD=0;
+	public double intraCluD=0;
+	
+	public ResultH()
+	{
+		super();
+		cluPerc=null;
+	}
+
+	ResultH(int cluNum,int nFields,int nItems)
+	{
+		super();
+		cluPerc= new double[cluNum];
+	}
+
+	public void showData(){
+		super.showData();
+		System.out.println("------Porcentajes de instancias en clusters------------");
+		for(int i=0;i<cluPerc.length;i++)
+			System.out.println(i+":"+cluPerc[i]+"%");
+		System.out.println("------How good are the clustering results------------");
+		System.out.println("intra cluster distance:"+intraCluD);
+		System.out.println("inter cluster distance:"+interCluD);
+			
+	}
+
+}

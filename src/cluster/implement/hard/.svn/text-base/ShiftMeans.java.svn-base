@@ -1,0 +1,122 @@
+
+package cluster.implement.hard;
+import clusterUtil.*;
+import cluster.*;
+import dataStruct.*;
+import distance.*;
+import java.util.*;
+public class ShiftMeans extends HardC {
+	/*The mean shift algorithm is a nonparametric clustering technique which does not require prior
+	knowledge of the number of clusters, and does not constrain the shape of the clusters.*/
+	
+	public double radius;
+	public double epsilon;
+	
+	public ShiftMeans(DoubleDataset ds,double r,double epsilon){
+		super(20,ds);
+		this.radius=r;
+		this.epsilon=epsilon;
+	}		
+	double[][] centro=new double[nItems][nFields];
+	double[][] centroV=new double[nItems][nFields];
+	double[][] tmpEntorno=new double[nItems][nFields];
+	int entN;
+	
+	
+	int[] assPuntConverg(double[][] centro){
+    	int [] resu=new int[nItems];
+    	int numC=-1;
+    	boolean ta[]=new boolean[nItems];
+    	for (int i=0;i<nItems;i++)
+    		ta[i]=false;
+    	for (int i=0;i<nItems;i++)
+    		if (!ta[i]){
+    			ta[i]=true;
+    			numC++;
+    			resu[i]=numC;
+    			for (int j=i+1;j<nItems;j++){
+    				double dist=getDistKind().calcular(centro[i], centro[j]);
+    				if (dist<epsilon){
+    					ta[j]=true;
+    					resu[j]=numC;
+    					}	
+    				}
+    		}
+    	numClu=numC+1;
+    	return resu;
+    }
+    	
+
+	
+	public double matDist(double[][] m1, double[][] m2){
+		double tot=0;
+		for(int i=0;i<nItems;i++){
+			double dist=getDistKind().calcular(m1[i],m2[i]);
+			tot=tot+dist;
+		}
+		return tot;
+	}
+	
+	void calcCentroids(){
+		//tengo assignClu, numClu y ds.dataset
+		centroids=new double[numClu][nFields];
+		int[] cantClu=new int[numClu];
+		for (int i=0;i<numClu;i++)
+			for (int j=0;j<nFields;j++)
+				centroids[i][j]=0;
+		for (int i=0;i<numClu;i++)
+			cantClu[i]=0;
+		for (int i=0;i<nItems;i++){
+			int cn=cluAssign[i];
+			cantClu[cn]++;
+			for (int j=0;j<nFields;j++)
+				centroids[cn][j]=centroids[cn][j]+ds.dataset[i][j];
+		}
+		for (int i=0;i<numClu;i++)
+			for (int j=0;j<nFields;j++)
+				centroids[i][j]=centroids[i][j]/cantClu[i];
+		
+	}
+	public Result processClusters(){
+		centro=ds.dataset.clone();
+		centroV=ds.dataset.clone();
+
+		double distPaso=100;
+		int iter=0;
+		while(iter<maxIter && (distPaso>epsilon*nItems)){
+			centroV=centro.clone();
+			for(int i=0;i<nItems;i++){
+				entN=0;
+				for(int j=0;j<nItems;j++){
+					double dist=getDistKind().calcular(ds.dataset[i],ds.dataset[j]);
+					if (dist<radius){
+						tmpEntorno[entN]=ds.dataset[j].clone();
+						entN++;
+					}
+				}
+				//tengo todos los que estan dentro del radio
+				double[] sum=new double[nFields];
+				for(int k=0;k<nFields;k++)
+					sum[k]=0;
+				for(int k=0;k<entN;k++)
+					for(int l=0;l<nFields;l++)
+						sum[l]=sum[l]+tmpEntorno[k][l];
+				for(int l=0;l<nFields;l++)
+					sum[l]=sum[l]/entN;
+				//tengo el nuevo valor del item
+				centro[i]=sum;
+		}
+		distPaso=matDist(centro,centroV);
+		iter++;
+	}	
+	cluAssign=assPuntConverg(centro);	
+	calcCluPert();//porcentaje de instancias en cada cluster
+	calcCentroids();
+	interCluD=interCluDist(centroids);
+	intraCluD=intraCluDist(cluAssign,centroids);	
+
+	return resulta(cluAssign,centroids,cluPerc);			
+	}	
+
+
+}
